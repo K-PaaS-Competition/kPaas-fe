@@ -1,16 +1,17 @@
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import MainPage from './component/MainPage/MainPage';
+import "./App.css";
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import MapPage from './component/MapPage/MapPage';
 
 function App() {
-  return (
-    <div className="App">
+  return(
+    <div>
       <Router>
         <Routes>
-          <Route path='/' element={<MainPage/>}/>
+          <Route path='/' element={<MapPage/>} />
         </Routes>
       </Router>
     </div>
-  );
+  )
 }
 
 export default App;
