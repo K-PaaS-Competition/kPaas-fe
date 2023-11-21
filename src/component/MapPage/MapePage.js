@@ -9,8 +9,8 @@ const MapPage = ()=>{
   
   return(
   <div>
-    <Maps mapStyle={mapStyle}/>
-  </div>
+    <Maps mapStyle={mapStyle} cityName={"seoul"}/>
+  </div>  
   )
 };
 

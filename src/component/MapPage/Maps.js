@@ -56,8 +56,9 @@ const Maps = (props) => {
   })
 
   useEffect(()=> {
+    console.log("getInitData")
     async function getFloodRiskData() {
-      await axios.get("http://localhost:8000/data/getFloodRisk?cityname=seoul")
+      await axios.get(`http://localhost:8000/data/getFloodRisk?cityname=${props.cityName}`)
       .then(async (res)=>{
         let data = res.data.data;
         for(let i=0; i<data.length; i++){
@@ -83,7 +84,7 @@ const Maps = (props) => {
       });
     }
     async function getCityData(){
-      await axios.get("http://localhost:8000/city/get?name=seoul")
+      await axios.get(`http://localhost:8000/city/get?name=${props.cityName}`)
       .then(async(res)=>{
         const cityData = res.data.data
         const centerLat = (cityData.maxLat + cityData.minLat)/2
@@ -99,8 +100,11 @@ const Maps = (props) => {
         console.log(err)
       })
     }
-    getFloodRiskData();
-    getCityData()
+    (async () => {
+      await getFloodRiskData();
+      await getCityData();
+      console.log(floodRisk[0])
+    })();
   }, []);
   const cbc = CbcConvert.LlcToCbc([position.lng, position.lat]); 
   return (
