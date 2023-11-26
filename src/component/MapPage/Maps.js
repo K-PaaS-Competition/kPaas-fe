@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { Icon, point } from 'leaflet';
 import images from '../../assets/images/images';
 import CbcConvert from '../../modules/CbcConvert';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
-import ZoomLevelCheck from './ZoomLevelCheck';
+import RiskPolygonSet from './RiskPolygonSet';
 
 const customIcon = new Icon({
   iconUrl: images.marker, // 아이콘 이미지 URL
@@ -14,29 +14,12 @@ const customIcon = new Icon({
   popupAnchor: [-3, -76] // 팝업 앵커포인트
 });
 
-const MapEvents = (props)=>{
-  useMapEvents({
-    mousemove: (e)=>{
-      const llc = e.latlng;
-      props.setMousePosition(()=>({
-        lng:llc.lng,
-        lat:llc.lat
-      }));
-    }
-  })
-  return null;
-}
-
 const Maps = (props) => {
   const [grid, setGrid] = useState({})  
-  const [zoomLevel, setZoomLevel] = useState(7);
+  const [zoomLevel, setZoomLevel] = useState(13);
   const [position, setPosition] = useState({
     lng:0,
     lat:0
-  });
-  const [mousePosition, setMousePosition] = useState({
-    lng:position.lng,
-    lat:position.lat
   });
   const [floodRisk, setFloodRisk] = useState([{
     "location":null,
@@ -54,19 +37,23 @@ const Maps = (props) => {
     "minLat": 37.413294,
     "minLng": 126.734086
   })
+  const [rainFall, setRainFall] = useState(0);
 
   useEffect(()=> {
-    console.log("getInitData")
+    const randomRainFall = setInterval(()=>{
+      const rand = Math.random()*50;
+      console.log(rand);
+      setRainFall(()=>rand);
+    }, 10000);
     async function getFloodRiskData() {
-      await axios.get(`http://localhost:8000/data/getFloodRisk?cityname=${props.cityName}`)
+      await axios.get(`http://localhost:8000/floodRisk/get?city=${props.cityName}`)
       .then(async (res)=>{
+        console.log(res)
         let data = res.data.data;
         for(let i=0; i<data.length; i++){
           const d = data[i]
-          if(d['gidCode1']<10) data[i]['gidCode1']*=1000;
-          else if(d['gidCode1']<100) data[i]['gidCode1']*=100
-          if(d['gidCode2']<10) data[i]['gidCode2']*=1000;
-          else if(d['gidCode2']<100) data[i]['gidCode2']*=100
+          if(d['gidCode1']<100) data[i]['gidCode1']*=100
+          if(d['gidCode2']<100) data[i]['gidCode2']*=100
         }
         data.sort(function(a,b){
           if(a['gidChar']> b['gidChar']) return 1;
@@ -103,10 +90,13 @@ const Maps = (props) => {
     (async () => {
       await getFloodRiskData();
       await getCityData();
-      console.log(floodRisk[0])
     })();
+
+    return (()=>clearInterval(randomRainFall));
   }, []);
+
   const cbc = CbcConvert.LlcToCbc([position.lng, position.lat]); 
+  
   return (
     <div>
       <MapContainer 
@@ -124,8 +114,7 @@ const Maps = (props) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <ZoomLevelCheck zoomLevel={zoomLevel} floodRisk={floodRisk} cityInfo={cityInfo} grid={grid} setGrid={setGrid}/>
-        <MapEvents setMousePosition={setMousePosition}/>
+        <RiskPolygonSet zoomLevel={zoomLevel} floodRisk={floodRisk} cityInfo={cityInfo} grid={grid} setGrid={setGrid} rainFall={rainFall}/>
         <Marker position={position} icon={customIcon}>
           <b>{`${cbc[0]} ${cbc[1]} ${cbc[2]}`}</b>
         </Marker>

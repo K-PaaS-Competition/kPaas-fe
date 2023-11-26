@@ -10,6 +10,7 @@ const wgs84 =
 
 
 // LLC(경위도 좌표)를 CBC(국가 지점 번호 좌표)로 전환
+// llcCode = [lng, lat]
 const LlcToCbc = (llcCode)=>{
   //proj(사작 좌표계, 목표 좌표계, data) : 시작 좌표계인 data를 목표 좌표계로 바꿈
   const grs80Codinate = proj4(wgs84, grs80, llcCode)
@@ -142,11 +143,11 @@ const getLabelText = (scale, cordinate)=>{
     if(scale === 100000){
       return cordinate[0];
     }else if(scale === 10000){ // 두 자리 데이터 표현 ( ex. 가나 12xxx 43xxx )
-      return `${cordinate[0]} ${longtitude.toString()}XXX ${latitude.toString()}XXX`
+      return `${cordinate[0]} ${longtitude.toString()}000 ${latitude.toString()}000`
     }else if(scale === 1000){ // 세 자리 데이터 표현 ( ex. 가나 123xx 432xx )
-      return `${cordinate[0]} ${longtitude.toString()}XX ${latitude.toString()}XX`
+      return `${cordinate[0]} ${longtitude.toString()}00 ${latitude.toString()}00`
     }else if(scale === 100){ // 네 자리 데이터 표현 ( ex. 가나 1234x 4321x )
-      return `${cordinate[0]} ${longtitude.toString()}X ${latitude.toString()}X`
+      return `${cordinate[0]} ${longtitude.toString()}0 ${latitude.toString()}0`
     }else if(scale === 10){ // 다섯 자리 데이터 표현 ( ex. 가나 12345 54321 )
       return `${cordinate[0]} ${longtitude.toString()} ${latitude.toString()}`
     }else{ // 이런 데이터는 존재하지 않는다 --> undefined
