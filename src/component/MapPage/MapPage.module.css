@@ -1,0 +1,159 @@
+/* .leaflet-pane {
+  z-index: 400 !important;
+} */
+.MapPageBackground{
+  position: relative;
+  
+  width: 100vw;
+  height: 100vh;
+  
+  overflow: hidden;
+    /* 스크롤 없음 */
+}
+
+.topBar{
+  display: flex;
+  align-items: center;
+  column-gap: 2rem;
+
+  width: 100%;
+  height: 2.2rem;
+
+  position: absolute;
+  left: 1.5rem;
+  top: 1.5rem;
+
+  z-index: 1000;
+}
+
+.inputContainer{
+  position: relative;
+  display: flex;
+
+  width: 30rem;
+  height: 100%;
+  background-color: #fff;
+}
+
+.logoMenu{
+  width: 8rem;
+  height: 100%;
+  background-color: #22c55e;
+}
+
+.inputWrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+
+  width: 22rem;
+  height: 100%;
+}
+
+.searchBox{
+  width: calc(100% - (0.5rem)*2);
+  height: 100%;
+
+  border: 0;
+  padding: 0;
+  margin: 0;
+
+  outline: none;
+}
+
+.similarRegionContainer{
+  position: absolute;
+  top: 2.2rem;
+  left: 0;
+
+  width: 22rem;
+  max-height: 20rem;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #fff;
+
+  padding: 0.5rem 0 0.5rem 0;
+}
+
+.similarRegion{
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  height: 2rem;
+  padding-left: 1rem;
+
+  cursor: pointer;
+}
+
+.similarRegion:hover{
+  background-color: #f3f3f3
+}
+
+.locationInfoContainer{
+  display: flex;
+  position: relative;
+  height: 100%;
+}
+
+.location{
+  width: 12rem;
+  height: 100%;
+  background-color: #fff;
+}
+
+.rainFall{
+  width: 8rem;
+  height: 100%;
+  background-color: #22c55e;
+}
+
+.buttonContainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 2.2rem;
+  height: 2.2rem;
+  
+  border-radius: 10rem;
+  background-color: #fff;
+  
+  cursor: pointer;
+}
+
+.subwayMapButton{
+  width: 1.2rem;
+  height: 1.5rem;
+}
+
+/* riskGraph*/
+
+.riskRraphContainer{
+  position: absolute;
+  left: 1.5rem;
+  top: calc(100vh - 5.5rem - 1.5rem);
+
+  width: 22rem;
+  height: 5.5rem;
+  
+  z-index: 1000;
+  background-color: #fff;
+}
+
+.riskGraph{
+
+}
+
+.gridDataJsxContainer {
+  position: absolute;
+  top: 1.3rem;
+
+  display: flex;
+  justify-content: space-between;
+
+  width: 100%;
+  flex-wrap: wrap;
+}

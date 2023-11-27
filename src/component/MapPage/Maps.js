@@ -18,8 +18,8 @@ const Maps = (props) => {
   const [grid, setGrid] = useState({})  
   const [zoomLevel, setZoomLevel] = useState(13);
   const [position, setPosition] = useState({
-    lng:0,
-    lat:0
+    "lng":127.001699,
+    "lat":37.564214,
   });
   const [floodRisk, setFloodRisk] = useState([{
     "location":null,
@@ -42,7 +42,6 @@ const Maps = (props) => {
   useEffect(()=> {
     const randomRainFall = setInterval(()=>{
       const rand = Math.random()*50;
-      console.log(rand);
       setRainFall(()=>rand);
     }, 10000);
     async function getFloodRiskData() {
@@ -71,7 +70,7 @@ const Maps = (props) => {
       });
     }
     async function getCityData(){
-      await axios.get(`http://localhost:8000/city/get?name=${props.cityName}`)
+      await axios.get(`http://localhost:8000/city/get?city=${props.cityName}`)
       .then(async(res)=>{
         const cityData = res.data.data
         const centerLat = (cityData.maxLat + cityData.minLat)/2
@@ -93,33 +92,36 @@ const Maps = (props) => {
     })();
 
     return (()=>clearInterval(randomRainFall));
-  }, []);
-
-  const cbc = CbcConvert.LlcToCbc([position.lng, position.lat]); 
+  }, [props.cityName]);
   
+  const setMapData = (data)=>{
+    console.log(data)
+    props.setMap(()=>data)
+  };
+
   return (
-    <div>
-      <MapContainer 
-        style={props.mapStyle}
-        center={position}
-        zoom={zoomLevel}
-        minZoom={13}
-        scrollWheelZoom={true}
-        maxBounds={[
-          [cityInfo.minLat, cityInfo.minLng], // 왼쪽 아래 좌표
-          [cityInfo.maxLat, cityInfo.maxLng]  // 오른쪽 위 좌표
-        ]}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <RiskPolygonSet zoomLevel={zoomLevel} floodRisk={floodRisk} cityInfo={cityInfo} grid={grid} setGrid={setGrid} rainFall={rainFall}/>
-        <Marker position={position} icon={customIcon}>
-          <b>{`${cbc[0]} ${cbc[1]} ${cbc[2]}`}</b>
-        </Marker>
-      </MapContainer>
-    </div>
+      <div>
+        <MapContainer 
+          style={props.mapStyle}
+          center={position}
+          zoom={zoomLevel}
+          minZoom={13}
+          scrollWheelZoom={true}
+          // maxBounds={[
+          //   [cityInfo.minLat, cityInfo.minLng], // 왼쪽 아래 좌표
+          //   [cityInfo.maxLat, cityInfo.maxLng]  // 오른쪽 위 좌표
+          // ]}
+          zoomControl={false}
+          whenReady={setMapData}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <RiskPolygonSet zoomLevel={zoomLevel} floodRisk={floodRisk} cityInfo={cityInfo} grid={grid} setGrid={setGrid} rainFall={rainFall}/>
+          <Marker position={props.mapCenter} icon={customIcon}></Marker>
+        </MapContainer>
+      </div>
   )
 }
 
