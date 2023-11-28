@@ -14,13 +14,24 @@ const customIcon = new Icon({
   popupAnchor: [-3, -76] // 팝업 앵커포인트
 });
 
-const Maps = (props) => {
-  const [grid, setGrid] = useState({})  
-  const [zoomLevel, setZoomLevel] = useState(13);
-  const [position, setPosition] = useState({
-    "lng":127.001699,
-    "lat":37.564214,
+const UpdateBounds = ({bounds, position}) => {
+  const map = useMap();
+  
+  map.whenReady(()=>{
+    map.setView(position);
   });
+
+  useEffect(() => {
+    map.setMaxBounds(bounds);
+    if(!position['lat']) return;
+    map.setView(position)
+  }, [bounds, map, position]);
+
+  return null;
+};
+
+const Maps = (props) => {
+  const [zoomLevel, setZoomLevel] = useState(13);
   const [floodRisk, setFloodRisk] = useState([{
     "location":null,
     "gidChar":null,
@@ -37,88 +48,75 @@ const Maps = (props) => {
     "minLat": 37.413294,
     "minLng": 126.734086
   })
-  const [rainFall, setRainFall] = useState(0);
 
   useEffect(()=> {
-    const randomRainFall = setInterval(()=>{
-      const rand = Math.random()*50;
-      setRainFall(()=>rand);
-    }, 10000);
-    async function getFloodRiskData() {
-      await axios.get(`http://localhost:8000/floodRisk/get?city=${props.cityName}`)
-      .then(async (res)=>{
-        console.log(res)
-        let data = res.data.data;
-        for(let i=0; i<data.length; i++){
-          const d = data[i]
-          if(d['gidCode1']<100) data[i]['gidCode1']*=100
-          if(d['gidCode2']<100) data[i]['gidCode2']*=100
-        }
-        data.sort(function(a,b){
-          if(a['gidChar']> b['gidChar']) return 1;
-          else if(a['gidChar']<b['gidChar']) return -1;
-          else if(a['gidCode1']>b['gidCode1']) return 1;
-          else if(a['gidCode1']<b['gidCode1']) return -1;
-          else if(a['gidCode2']>b['gidCode2']) return 1;
-          else if(a['gidCode2']<b['gidCode2']) return -1;
-          return 0;
-        })
-        await setFloodRisk(()=>data)
-      })
-      .catch((err)=>{
-        console.log(err)
-      });
-    }
-    async function getCityData(){
-      await axios.get(`http://localhost:8000/city/get?city=${props.cityName}`)
-      .then(async(res)=>{
-        const cityData = res.data.data
-        const centerLat = (cityData.maxLat + cityData.minLat)/2
-        const centerLng = (cityData.maxLng + cityData.minLng)/2
-        await setCityInfo(()=>cityData)
-        await setPosition(()=>{
-          return {
-            "lat":centerLat,
-            "lng":centerLng
+    try{
+      async function getFloodRiskData() {
+        await axios.get(`http://localhost:8000/floodRisk/get?city=${props.cityName}`)
+        .then(async (res)=>{
+          let data = res.data.data;
+          for(let i=0; i<data.length; i++){
+            const d = data[i]
+            if(d['gidCode1']<100) data[i]['gidCode1']*=100
+            if(d['gidCode2']<100) data[i]['gidCode2']*=100
           }
+          data.sort(function(a,b){
+            if(a['gidChar']> b['gidChar']) return 1;
+            else if(a['gidChar']<b['gidChar']) return -1;
+            else if(a['gidCode1']>b['gidCode1']) return 1;
+            else if(a['gidCode1']<b['gidCode1']) return -1;
+            else if(a['gidCode2']>b['gidCode2']) return 1;
+            else if(a['gidCode2']<b['gidCode2']) return -1;
+            return 0;
+          })
+          await setFloodRisk(()=>data)
         })
-      }).catch(err=>{
-        console.log(err)
-      })
+        .catch((err)=>{
+          console.log(err)
+        });
+      }
+      async function getCityData(){
+        await axios.get(`http://localhost:8000/city/get?city=${props.cityName}`)
+        .then(async(res)=>{
+          const cityData = res.data.data
+          await setCityInfo(()=>cityData)
+        }).catch(err=>{
+          console.log(err)
+        })
+      }
+      getFloodRiskData();
+      getCityData();
+    }catch(err){
+      console.log(err)
     }
-    (async () => {
-      await getFloodRiskData();
-      await getCityData();
-    })();
-
-    return (()=>clearInterval(randomRainFall));
   }, [props.cityName]);
-  
-  const setMapData = (data)=>{
-    console.log(data)
-    props.setMap(()=>data)
-  };
 
   return (
       <div>
         <MapContainer 
           style={props.mapStyle}
-          center={position}
+          center={props.mapCenter}
           zoom={zoomLevel}
           minZoom={13}
           scrollWheelZoom={true}
-          // maxBounds={[
-          //   [cityInfo.minLat, cityInfo.minLng], // 왼쪽 아래 좌표
-          //   [cityInfo.maxLat, cityInfo.maxLng]  // 오른쪽 위 좌표
-          // ]}
+          maxBounds={[
+            [cityInfo.minLat, cityInfo.minLng], // 왼쪽 아래 좌표
+            [cityInfo.maxLat, cityInfo.maxLng]  // 오른쪽 위 좌표
+          ]}
           zoomControl={false}
-          whenReady={setMapData}
         >
+          <UpdateBounds 
+            bounds={[
+              [cityInfo.minLat, cityInfo.minLng], // 왼쪽 아래 좌표
+              [cityInfo.maxLat, cityInfo.maxLng]  // 오른쪽 위 좌표
+            ]} 
+            position={props.mapCenter}
+          />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <RiskPolygonSet zoomLevel={zoomLevel} floodRisk={floodRisk} cityInfo={cityInfo} grid={grid} setGrid={setGrid} rainFall={rainFall}/>
+          <RiskPolygonSet zoomLevel={zoomLevel} floodRisk={floodRisk} rainFall={props.rainFall}/>
           <Marker position={props.mapCenter} icon={customIcon}></Marker>
         </MapContainer>
       </div>

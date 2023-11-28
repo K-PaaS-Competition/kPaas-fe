@@ -26,7 +26,7 @@ const SideBarTop = (props)=>{
           className={style.similarSubway}
           id={similarSubway[i]['name']}
         >
-          <div className={style.similarSubwayText}>{similarSubway[i]['name']} {similarSubway[i]['line']}</div>
+          {similarSubway[i]['name']} {similarSubway[i]['line']}
         </div>
       )
     }
@@ -47,6 +47,7 @@ const SideBarTop = (props)=>{
   })
 
   const handleInputKeyPress = ((e)=>{
+    if(similarSubway.length===0) return;
     if(e.key === "Enter"){
       if(similarSubway.indexOf(inputRef.current.value)<0){
         inputRef.current.value = similarSubway[0]['name']
@@ -76,7 +77,7 @@ const SideBarTop = (props)=>{
           onKeyPress={handleInputKeyPress}
           ref={inputRef}
         />
-        {similarSubway.length>0 && props.similarSubwayShow && <div className={style.similarSubwayContainer}>{similarSubwayJsx}</div>}
+        {similarSubway.length>0 && props.similarSubwayShow && <div className={style.similarSubwayContainer} id='input'>{similarSubwayJsx}</div>}
       </div>
       <div className={style.topBarOptionContainer}>
         <div className={style.topBarOption} style={{borderRight:"thin solid #00000026"}}>

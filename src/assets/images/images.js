@@ -10,5 +10,7 @@ const images = {
   menu:require("./menu.png"),
   rainIcon:require("./rainIcon.png"),
   subwayIcon:require("./subwayIcon.png"),
+  locationPointer:require("./locationPointer.png"),
+  mainPageBackground:require("./mainPageBackground.png"),
 };
 export default images;

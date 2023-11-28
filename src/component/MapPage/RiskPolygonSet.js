@@ -76,23 +76,29 @@ const RiskPolygonSet = (props) => {
   }
 
   const getColor = (grs80Codinate)=>{
-    const rainFall = props.rainFall;
-    const cbc = CbcConvert.LlcToCbc(grs80Codinate)
-    for(let i=1; i<cbc.length; i++){
-      cbc[i] = parseInt(cbc[i])
+    try{
+      const cbc = CbcConvert.LlcToCbc(grs80Codinate)
+      let color = "grey";
+      for(let i=1; i<cbc.length; i++){
+        cbc[i] = parseInt(cbc[i])
+      }
+      let cmp
+      cmp = getSameData(cbc)
+      if(cmp===null){
+        return "grey";
+      }
+      const data = cmp["data"];
+      const location = data["location"]
+      if(!props.rainFall || !props.rainFall[location]) return color;
+      const rainFall = props.rainFall[location].rainFall;
+      if(data["depth10Risk"] && rainFall <= data["depth10Risk"]) color= "green";
+      if(data["depth20Risk"] && rainFall >= data["depth10Risk"] && rainFall<data["depth20Risk"]) color= "yellow";
+      if(data["depth50Risk"] && rainFall >= data["depth20Risk"] && rainFall<data["depth50Risk"]) color= "orange";
+      if(data["depth50Risk"] && data["depth50Risk"]<=rainFall) color= "red";
+      return color;
+    }catch(err){
+      console.log(err)
     }
-    let cmp
-    cmp = getSameData(cbc)
-    if(cmp===null){
-      return "grey";
-    }
-    const data = cmp["data"];
-    let color = "grey";
-    if(data["depth10Risk"] && rainFall <= data["depth10Risk"]) color= "green";
-    if(data["depth20Risk"] && rainFall >= data["depth10Risk"] && rainFall<data["depth20Risk"]) color= "yellow";
-    if(data["depth50Risk"] && rainFall >= data["depth20Risk"] && rainFall<data["depth50Risk"]) color= "orange";
-    if(data["depth50Risk"] && data["depth50Risk"]<=rainFall) color= "red";
-    return color;
   }
 
   useEffect(() => {
