@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import style from "./MapPage.module.css"
 import images from '../../assets/images/images'
 import axios from 'axios'
+import { getSimilarRegion } from '../../modules/GetSimilarInput'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const mapStyle = {
   width:"100vw",
@@ -11,15 +13,20 @@ const mapStyle = {
 
 const RiskGraph = ()=>{
   const gridData = [0, 10, 20, 50, "~"];
-  const gridDataJsx = useState(
-    <div className={style.gridDataJsxContainer}>
-      {gridData.map((data)=>{
-        return(
-          <div key={`grid-${data}`}>{data}</div>
-        )
-      })}
-    </div>
-  );
+  const [gridDataJsx, setGridDataJsx] = useState();
+
+  useEffect(()=>{
+    const element = (
+      <div className={style.gridDataJsxContainer}>
+        {gridData.map((data)=>{
+          return(
+            <div key={`grid-${data}`}>{data}</div>
+          )
+        })}
+      </div>
+    );
+    setGridDataJsx(()=>element);
+  }, []);
 
   return(
     <div className={style.riskRraphContainer}>
@@ -32,18 +39,19 @@ const RiskGraph = ()=>{
 }
 
 const MapPage = ()=>{
-  const [mapCenter, setMapCenter] = useState({
-    "lat":37.5666103, "lng":126.9783882
-  })
+  const location = useLocation();
+  const [mapCenter, setMapCenter] = useState(null);
   const [cityList, setCityList] = useState(null)
   const [regionList, setRegionList] = useState(null)
-  const [currentRegion, setCurrentRegion] = useState("서울")
+  const [currentRegion, setCurrentRegion] = useState(location.state?location.state.name:"서울")
+  const [similarRegion, setSimilarRegion] = useState(null);
   const [similarRegionJsx, setSimilarRegionJsx] = useState([]);
   const [showSimilarRegion, setShowSimilarRegion] = useState(false);
   const [locationJsx, setLocationJsx] = useState(null)
   const [rainFall, setRainFall] = useState(null)
   const [currentRainFall, setCurrentRainFall] = useState("데이터 없음")
   const searchBoxRef = useRef(null)
+  const navigate = useNavigate();
 
   // 도시 정보 받아옴
   useEffect(()=>{
@@ -105,7 +113,7 @@ const MapPage = ()=>{
     }catch(err){
       console.log(err)
     }
-  }, [currentRegion])
+  }, [currentRegion, cityList, regionList])
 
   // location 정보 갱신
   useEffect(()=>{
@@ -113,13 +121,13 @@ const MapPage = ()=>{
     const tmp = []
     for(let i=0; i<lst.length; i++){
       tmp.push(
-        <div className={style.locationName}>
+        <div className={style.locationName} key={`${lst[i]}-${i}`}>
           {lst[i]}
         </div>
       )
       if(i<(lst.length-1)){
         tmp.push(
-          <img src={images.locationPointer} alt='locationPointer' className={style.locationPointer}/>
+          <img src={images.locationPointer} alt='locationPointer' className={style.locationPointer} key={i}/>
         )
       }
     }
@@ -150,7 +158,7 @@ const MapPage = ()=>{
     }catch(err){
       console.log(err)
     }
-  },[])
+  },[currentRegion])
 
   // 현재 지역 강수량 구하기
   useEffect(()=>{
@@ -164,7 +172,6 @@ const MapPage = ()=>{
         tmp+=rainFall[keys[i]]['rainFall'];
       }
       tmp = tmp/keys.length;
-      console.log(keys)
     }else if(rainFall[lst[1]]){
       if(tmp<0) tmp = 0;
       tmp = rainFall[lst[1]]['rainFall']
@@ -172,45 +179,12 @@ const MapPage = ()=>{
     if(tmp<0) tmp="데이터 없음"
     else setCurrentRainFall(()=><div className={style.rainFallValue}>{`${tmp*2}mm/h`}</div>);
   },[currentRegion, rainFall])
-  const showSimilarRegionHandler = (e)=>{
-    const target = e.target;
-    if(target.id==='searchBox') setShowSimilarRegion(true);
-    else{
-      setShowSimilarRegion(()=>false)
-    };
-  }
 
-  const searchBoxChangeHandler = (e)=>{
-    if(!regionList || !cityList) return;
-    const value = e.target.value;
-    const valueArray = value.split(" ")
-    const regionArray = []
-    const tmp = []
-    searchBoxRef.current.value = value;
-    for(let i=0; i<cityList.length; i++){
-      const cityName = cityList[i]['name'];
-      const regionData = regionList[cityName];
-      if(cityName.indexOf(valueArray[0]) >= 0) regionArray.push(cityName);
-      for(let j=0; j<regionData.length; j++){
-        let cityDetail = regionData[j]['name']
-        // 비슷한 단어가 아니면 continue
-        let skipAble = true;
-        for(let i=0; i<valueArray.length; i++){
-          if(cityDetail==='0') continue;
-          const v = valueArray[i]
-          if(cityName.indexOf(v)<0 && cityDetail.indexOf(v)<0){
-            continue;
-          }
-          skipAble = false;
-        }
-        if(skipAble) continue;
-        // region 문자열 생성
-        const region = `${cityName} ${cityDetail}`;
-        regionArray.push(region);
-      }
-    }
-    regionArray.forEach((data)=>{
-      tmp.push(
+  useEffect(()=>{
+    if(!similarRegion) return;
+    const tmpSimilarInputJsx = [];
+    similarRegion.forEach((data)=>{
+      tmpSimilarInputJsx.push(
         <div 
           key={data} 
           id='searchBox'
@@ -224,7 +198,22 @@ const MapPage = ()=>{
         </div>
       );
     });
-    setSimilarRegionJsx(()=>tmp)
+    setSimilarRegionJsx(()=>tmpSimilarInputJsx);
+  }, [similarRegion]);
+
+  const showSimilarRegionHandler = (e)=>{
+    const target = e.target;
+    if(target.id==='searchBox') setShowSimilarRegion(true);
+    else{
+      setShowSimilarRegion(()=>false)
+    };
+  }
+
+  const searchBoxChangeHandler = (e)=>{
+    if(!regionList || !cityList || !e.target.value) return;
+    if(e.target.value === "") return;
+    const regionArray = getSimilarRegion(e.target.value, cityList, regionList);
+    setSimilarRegion(()=>regionArray);
   }
 
   const searchEnterHandler = (e)=>{
@@ -237,34 +226,51 @@ const MapPage = ()=>{
   }
 
   return(
-  <div className={style.MapPageBackground} onClick={showSimilarRegionHandler}>
-    <div className={style.topBar}>
-      <div className={style.inputContainer}>
-        <div className={style.logoMenu}>
-          <img src={images.menu} alt='menu' className={style.menu}/>
-          <div className={style.logo}>LOGO</div>
+  <div>
+    {(regionList && cityList && rainFall && mapCenter) &&
+    <div className={style.MapPageBackground} onClick={showSimilarRegionHandler}>
+      <div className={style.topBar}>
+        <div className={style.inputContainer}>
+          <div className={style.logoMenu}>
+            <div className={style.logo} onClick={()=>navigate("/")}>
+              <span className={style.logoLeft}>Flooding</span>
+              <span className={style.logoRight}>P</span>
+              <span className={style.logoRight}>oint</span>
+            </div>
+          </div>
+          <div className={style.inputWrapper}>
+            <input className={style.searchBox} onChange={searchBoxChangeHandler} ref={searchBoxRef} id='searchBox' onFocus={showSimilarRegionHandler} onKeyPress={searchEnterHandler}/>
+            {showSimilarRegion && similarRegionJsx.length>0 && <div className={style.similarRegionContainer}  id='searchBox'>{similarRegionJsx}</div>}
+          </div>
         </div>
-        <div className={style.inputWrapper}>
-          <input className={style.searchBox} onChange={searchBoxChangeHandler} ref={searchBoxRef} id='searchBox' onFocus={showSimilarRegionHandler} onKeyPress={searchEnterHandler}/>
-          {showSimilarRegion && similarRegionJsx.length>0 && <div className={style.similarRegionContainer}  id='searchBox'>{similarRegionJsx}</div>}
+        <div className={style.locationInfoContainer}>
+          <div className={style.location}>
+            {locationJsx}
+          </div>
+          <div className={style.rainFall}>
+            <img src={images.rainIcon} alt='rainIcon' className={style.rainIcon}/>
+            {currentRainFall}
+          </div>
+        </div>
+        <div className={style.buttonContainer} onClick={()=>navigate("/subway")}>
+          <img src={images.subwayIcon} alt='subwayMap' className={style.subwayMapButton}/>
         </div>
       </div>
-      <div className={style.locationInfoContainer}>
-        <div className={style.location}>
-          {locationJsx}
-        </div>
-        <div className={style.rainFall}>
-          <img src={images.rainIcon} alt='rainIcon' className={style.rainIcon}/>
-          {currentRainFall}
-        </div>
+      <Maps 
+        mapStyle={mapStyle} 
+        cityName={(currentRegion.split(" "))[0]} 
+        mapCenter={mapCenter} rainFall={rainFall} 
+      />
+      <RiskGraph/>
+    </div>}
+    {
+      (!regionList || !cityList || !rainFall || !mapCenter) && 
+      <div className={style.square}>
+        <div className={style.spin}></div>
+        <div className={style.loadingMent}>Loading</div>
       </div>
-      <div className={style.buttonContainer}>
-        <img src={images.subwayIcon} alt='subwayMap' className={style.subwayMapButton}/>
-      </div>
-    </div>
-    <Maps mapStyle={mapStyle} cityName={(currentRegion.split(" "))[0]} mapCenter={mapCenter} rainFall={rainFall}/>
-    <RiskGraph/>
-  </div>  
+    }
+</div>
   )
 };
 

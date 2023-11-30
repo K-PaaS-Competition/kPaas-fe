@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Main from "./Main";
 import images from '../../assets/images/images';
-import style from "./MainPage.module.css"
+import style from "./MainPage.module.css";
+import TopBar from "./TopBar.js";
+import ServiceInfo from './ServiceIntro.js';
+import SearchPage from './SearchPage.js';
 
 const MainPage = ()=>{
   const navigate = useNavigate()
@@ -12,9 +14,16 @@ const MainPage = ()=>{
     navigate("/map")
   }
 
+  useEffect(()=>{
+    console.log(page)
+  }, [page])
+  
   return(
   <div className={style.background}>
-    <img src={images.mainPageBackground} alt='mainPageBackground' className={style.backgroundImg}/>
+    <TopBar currentPage={page} setPage={setPage}/>
+    <img src={images.mainPageBackgroundGreen} alt='mainPageBackground' className={style.backgroundImg}/>
+    {page===0 && <ServiceInfo setPage={setPage}/>}
+    {page===1 && <SearchPage setPage={setPage}/>}
   </div>)
 }
 

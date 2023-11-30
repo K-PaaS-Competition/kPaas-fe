@@ -12,5 +12,9 @@ const images = {
   subwayIcon:require("./subwayIcon.png"),
   locationPointer:require("./locationPointer.png"),
   mainPageBackground:require("./mainPageBackground.png"),
+  mainPageBackgroundGreen:require("./mainPageBackgroundGreen.png"),
+  mapIcon:require("./mapIcon.png"),
+  subwayWhiteIcon:require("./subwayWhiteIcon.png"),
+  searchIcon:require("./searchIcon.png"),
 };
 export default images;

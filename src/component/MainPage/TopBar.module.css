@@ -1,0 +1,59 @@
+.topBarContainer{
+  position: fixed;
+  background-color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100vw;
+  height: 4rem;
+
+  z-index: 1000;
+}
+
+.logo{
+  display: flex;
+  font-size: 1.5rem;
+  font-weight: 600;
+
+  margin-left: 2rem;
+}
+
+.logoLeft{
+  color: #34d399;
+  cursor: pointer;
+}
+
+.logoRight{
+  color: #000;
+}
+
+.menuContainer{
+  display: flex;
+  column-gap: 5vw;
+
+  margin-right: 2rem;
+}
+
+.selectedMenu{
+  color: #34d399;  
+  font-family: Poppins;
+  font-size: 1.2rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+
+  cursor: pointer;
+} 
+
+.unSelectedMenu{
+  color: #000;
+  font-family: Poppins;
+  font-size: 1.2rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+
+  cursor: pointer;
+}

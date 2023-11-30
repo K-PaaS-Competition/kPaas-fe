@@ -1,6 +1,6 @@
 import "./App.css";
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import MapPage from './component/MapPage/MapePage';
+import MapPage from './component/MapPage/MapPage';
 import MainPage from './component/MainPage/MainPage';
 import SubwayMapPage from './component/SubwayMap/SubwayMapPage';
 

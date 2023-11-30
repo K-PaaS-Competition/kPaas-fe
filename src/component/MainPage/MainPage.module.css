@@ -1,14 +1,38 @@
+@import url("../reset.css");
+
+*{
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .background{
+  display: block;
+  position: relative;
+  
   width: 100vw;
   height: 100vh;
-  
-  overflow-x: hidden;
-  overflow-y: hidden;
+}
+
+@media screen and (max-width: 70rem) {
+  .background {
+    display: block;
+    background-color: #fff;
+    width: 70rem;
+  }
+}
+
+@media screen and (max-height: 35rem) {
+  .background {
+    display: block;
+    background-color: #fff;
+    height: 35rem;
+  }
 }
 
 .backgroundImg{
-  width: 100vw;
-  height: 100vh;
-
-  overflow-y:hidden
+  display: block;
+  width: 100%;
+  height: calc(100%);
+  overflow: hidden;
 }

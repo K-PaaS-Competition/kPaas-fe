@@ -16,14 +16,15 @@ const customIcon = new Icon({
 
 const UpdateBounds = ({bounds, position}) => {
   const map = useMap();
-  
-  map.whenReady(()=>{
-    map.setView(position);
-  });
+  useEffect(() => {
+    map.whenReady(()=>{
+      map.setView(position, 15);
+    });
+  }, [map, position]);
 
   useEffect(() => {
     map.setMaxBounds(bounds);
-    if(!position['lat']) return;
+    if(!position || !position['lat']) return;
     map.setView(position)
   }, [bounds, map, position]);
 
@@ -32,15 +33,7 @@ const UpdateBounds = ({bounds, position}) => {
 
 const Maps = (props) => {
   const [zoomLevel, setZoomLevel] = useState(13);
-  const [floodRisk, setFloodRisk] = useState([{
-    "location":null,
-    "gidChar":null,
-    "gidCode1":null,
-    "gidCode2":null,
-    "depth10Risk":null,
-    "depth20Risk":null,
-    "depth50Risk":null,
-  }])
+  const [floodRisk, setFloodRisk] = useState(null);
   const [cityInfo, setCityInfo] = useState({
     "name": "seoul",
     "maxLat": 37.715133,

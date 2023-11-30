@@ -10,6 +10,7 @@ const RiskPolygonSet = (props) => {
   const map = useMap();
 
   useEffect(() => {
+    if(!props.rainFall || !props.floodRisk) return;
     const newLineArray = CbcConvert.lineArray(
       mapZoomLevel,
       map.getBounds().getSouthWest(),
@@ -50,6 +51,7 @@ const RiskPolygonSet = (props) => {
     return 0;
   } 
   const getSameData = (cbc)=>{
+    if(!props.floodRisk) return null;
     let s=0, e=props.floodRisk.length-1;
     let m
     const arr = props.floodRisk;
@@ -105,10 +107,10 @@ const RiskPolygonSet = (props) => {
     if (lineArr.length !== 0) {
       const result = lineArr.map(({ id, latLongArr, cbcText, ref }) => (
         <Polygon
-          key={`${id}-${getColor(ref)}`}
+          key={`${id}-${Math.random()}`}
           positions={latLongArr}
           color={getColor(ref)}
-          pathOptions={{ weight: 0 }}
+          pathOptions={{ weight: 2}}
         >
         </Polygon>
       ));
