@@ -46,7 +46,7 @@ const SearchPage = ({setPage})=>{
     async function getSubwayList(){
       //'https://cors-anywhere.herokuapp.com/
       // await axios.get("http://49.50.164.200:8000/subway/getAll")
-      await axios.get("https://cors-anywhere.herokuapp.com/http://49.50.164.200:8000/subway/getAll")
+      await axios.get("'https://cors.bridged.cc/http://49.50.164.200:8000/subway/getAll")
       .then(async (res)=>{
         await setSubwayList(()=>res.data)
       })
