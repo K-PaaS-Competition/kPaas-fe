@@ -1,4 +1,4 @@
-  import React, { useEffect, useRef, Component, useState } from 'react';
+  import React, { useRef, useState } from 'react';
   import images from '../../assets/images/images';
   import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
   import style from './SubwayMap.module.css'
@@ -83,7 +83,7 @@
               </div>
               <div className={style.selectMapButton} onClick={otherSubwayClickHandler}>
                 <span style={{fontWeight:"700"}}>{selected}</span>
-                <img src={images.showOtherSubway} className={style.otherSubway} ref={otherSubwayRef}/>
+                <img src={images.showOtherSubway} className={style.otherSubway} ref={otherSubwayRef} alt='showOtherSubway'/>
               </div>
             </div>
             {otherSubwayClick && subwayMapSelectBar}

@@ -80,7 +80,7 @@ const SideBarTop = (props)=>{
       </div>
       <div className={style.topBarOptionContainer}>
         <div className={style.topBarOption} style={{borderRight:"thin solid #00000026"}}>
-          <div className={style.topBarOptionContent} style={option=="info"?{backgroundColor:"#15803d"}:{}}>세부 정보</div>
+          <div className={style.topBarOptionContent} style={option==="info"?{backgroundColor:"#15803d"}:{}}>세부 정보</div>
         </div>
         <div className={style.topBarOption} style={{borderLeft:"thin solid #00000026"}} onClick={()=>navigate("/map")}>
           <div className={style.topBarOptionContent}>지도</div>

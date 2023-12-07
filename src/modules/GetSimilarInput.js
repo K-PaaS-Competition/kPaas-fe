@@ -39,7 +39,6 @@ const getWeight = (inputList, dataList)=>{
   for(let i=0; i<inputList.length; i++){
     const input = inputList[i];
     let maxWeight = 0;
-    let maxWeightString = "";
     for(let j=0; j<dataList.length; j++){
       const data = dataList[j];
       let idx = 0, similar = 0;
@@ -52,7 +51,6 @@ const getWeight = (inputList, dataList)=>{
       let weight = similar/(data.length + input.length);
       if(weight>=maxWeight){
         maxWeight=weight;
-        maxWeightString=data;
       }
     }
     res += maxWeight;
