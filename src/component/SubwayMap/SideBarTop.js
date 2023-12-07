@@ -72,8 +72,9 @@ const SideBarTop = (props)=>{
           className={style.searchBox} 
           placeholder='지하철역 검색' 
           onChange={handleInputChange} 
-          onKeyPress={handleInputKeyPress}
+          onKeyDown={handleInputKeyPress}
           ref={inputRef}
+          maxLength={25}
         />
         {similarSubway && props.similarSubwayShow && <div className={style.similarSubwayContainer} id='input'>{similarSubwayJsx}</div>}
       </div>

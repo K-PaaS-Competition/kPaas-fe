@@ -40,7 +40,8 @@ const SubwayMapPage = ()=>{
         const subwayCbc = CbcConvert.LlcToCbc([subwayData.lng, subwayData.lat])
         await setCurrentStationInfo(()=>res.data);
         return subwayCbc;
-      }).then(async (cbc)=>{
+      })
+      .then(async (cbc)=>{
         for(let i=1; i<3; i++){
           const roundNumber = Math.round(cbc[i]/100)
           cbc[i] = roundNumber
@@ -48,6 +49,8 @@ const SubwayMapPage = ()=>{
         await axios.get(`http://localhost:8000/floodRisk/getByCbc?gidChar=${cbc[0]}&gidCode1=${cbc[1]}&gidCode2=${cbc[2]}`)
         .then(async (res)=>{
           await(setFloodRisk(()=>res.data[0]))
+        }).catch((err)=>{
+          console.log(err)
         })
       })
       .catch((err)=>{
@@ -58,6 +61,9 @@ const SubwayMapPage = ()=>{
       await axios.get(`http://localhost:8000/rain/get?city=seoul&Cumulative_time=30`)
       .then(res=>{
         setRainFall(()=>res.data)
+      })
+      .catch(err=>{
+        console.log(err)
       })
     }
     getCurrentSubwayInfo()
@@ -84,6 +90,9 @@ const SubwayMapPage = ()=>{
       else if(depth10Risk <= rainFall3Hour && rainFall3Hour < depth20Risk) setFloodRiskLevel(()=>3)
       else if(depth20Risk <= rainFall3Hour && rainFall3Hour < depth50Risk) setFloodRiskLevel(()=>5)
       else if(depth50Risk <= rainFall3Hour) setFloodRiskLevel(()=>8)
+    }else{
+      setCurrentRainFall(()=>-1)
+      setFloodRiskLevel(()=>0)
     }
   }, [floodRisk, rainFall])
 

@@ -8,7 +8,6 @@ const ServiceInfo = ({setPage})=>{
 
   const handleScroll = (e) => {
     if(e.deltaY > 0){
-      console.log("scroll up");
       setPage((prev)=>{
         if(prev===0){
           return prev+1;

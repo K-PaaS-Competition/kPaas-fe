@@ -1,11 +1,14 @@
 import proj4 from 'proj4'
 
-export const w = { 7: "가", 8: "나", 9: "다", 10: "라", 11: "마", 12: "바", 13: "사" };
-export const h = {13: "가", 14: "나", 15: "다", 16: "라", 17: "마", 18: "바", 19: "사", 20: "아",};
+const w = { 7: "가", 8: "나", 9: "다", 10: "라", 11: "마", 12: "바", 13: "사" };
+const h = {13: "가", 14: "나", 15: "다", 16: "라", 17: "마", 18: "바", 19: "사", 20: "아",};
 
-const grs80 =
+// EPSG 코드 : 우리나라는 EPSG:5186를 사용함. (평면 좌표계)
+const ktm =
   "+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs";
-const wgs84 =
+
+// EPSG:4166 : GPS가 사용하는 코드 (경위도 좌표계)
+  const wgs84 =
   "+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees";
 
 
@@ -13,9 +16,9 @@ const wgs84 =
 // llcCode = [lng, lat]
 const LlcToCbc = (llcCode)=>{
   //proj(사작 좌표계, 목표 좌표계, data) : 시작 좌표계인 data를 목표 좌표계로 바꿈
-  const grs80Codinate = proj4(wgs84, grs80, llcCode)
-  const widthProj4 = parseInt(grs80Codinate[0].toString().split(".")[0]);
-  const heightProj4 = parseInt(grs80Codinate[1].toString().split(".")[0]);
+  const KtmCodinate = proj4(wgs84, ktm, llcCode)
+  const widthProj4 = parseInt(KtmCodinate[0].toString().split(".")[0]);
+  const heightProj4 = parseInt(KtmCodinate[1].toString().split(".")[0]);
   // code : [가나, xxxxx, yyyyy]
   const code = [
     w[Math.floor(Math.floor(widthProj4)/100000)] + h[Math.floor(Math.floor(heightProj4)/100000)],
@@ -57,7 +60,7 @@ const CbcToLlc = (_cbcCode)=>{
   llc[0] = Math.pow(10, length)*llc[0] + parseInt(cbcCode[1])*Math.pow(10, 6-length) + 5
   llc[1] = Math.pow(10, length)*llc[1] + parseInt(cbcCode[2])*Math.pow(10, 6-length) + 5
   // 구한 위경도
-  const llcCode = proj4(grs80, wgs84, [llc[0], llc[1]])
+  const llcCode = proj4(ktm, wgs84, [llc[0], llc[1]])
   return llcCode;
 }
 
@@ -94,7 +97,7 @@ const samplePointXY = (m, minX, maxX, minY, maxY)=>{
   for(let x = minX; x<=maxX; x+=m){
     const gridArrayElement = [];
     for(let y=minY; y<=maxY; y+=m){
-      const llcData = proj4(grs80, wgs84, [x, y]);
+      const llcData = proj4(ktm, wgs84, [x, y]);
       gridArrayElement.push(llcData);
     }
     gridArray.push(gridArrayElement);
@@ -107,7 +110,7 @@ const samplePointXY = (m, minX, maxX, minY, maxY)=>{
 const isInnerBound = (codinate)=>{
   // filter = w : [h1, h2] 꼴의 데이터
   // = 어떤 w값에 대한 h값이 h1와 h2 사이에 있다.
-  const grs80Codinate = proj4(wgs84, grs80, codinate);
+  const KtmCodinate = proj4(wgs84, ktm, codinate);
   const TKM = 100000;
   const filter = {
   7: [13, 21],
@@ -120,8 +123,8 @@ const isInnerBound = (codinate)=>{
   };
   // 입력값의 경도([0]), 위도([1]) 데이터를 반올림 후 TKM으로 나눈다.
   // --> filter에서 key값 계산
-  const codinateWValue = Math.round(grs80Codinate[0])
-  const codinateHValue = Math.round(grs80Codinate[1]);
+  const codinateWValue = Math.round(KtmCodinate[0])
+  const codinateHValue = Math.round(KtmCodinate[1]);
   // filter 데이터의 키값 구하기
   const filterKey = Math.floor(codinateWValue/TKM);
   const filterData = filter[filterKey];
@@ -133,41 +136,13 @@ const isInnerBound = (codinate)=>{
   }
 }
 
-
-// 각각의 grid에 표시할 text 생성 (ex. 가나 1234 4321)
-// scale : 배율 , cordinate : CBC 좌표 ([가나] [1234] [4321])
-const getLabelText = (scale, cordinate)=>{
-  try{
-    const longtitude = Math.floor(cordinate[1] / (scale/10)).toString();
-    const latitude = Math.floor(cordinate[2] / (scale/10)).toString();
-    if(scale === 100000){
-      return cordinate[0];
-    }else if(scale === 10000){ // 두 자리 데이터 표현 ( ex. 가나 12xxx 43xxx )
-      return `${cordinate[0]} ${longtitude.toString()}000 ${latitude.toString()}000`
-    }else if(scale === 1000){ // 세 자리 데이터 표현 ( ex. 가나 123xx 432xx )
-      return `${cordinate[0]} ${longtitude.toString()}00 ${latitude.toString()}00`
-    }else if(scale === 100){ // 네 자리 데이터 표현 ( ex. 가나 1234x 4321x )
-      return `${cordinate[0]} ${longtitude.toString()}0 ${latitude.toString()}0`
-    }else if(scale === 10){ // 다섯 자리 데이터 표현 ( ex. 가나 12345 54321 )
-      return `${cordinate[0]} ${longtitude.toString()} ${latitude.toString()}`
-    }else{ // 이런 데이터는 존재하지 않는다 --> undefined
-      return undefined;
-    }
-  }catch(err){
-    console.log(err);
-  }
-}
-
 // grid를 그리는 함수
 const lineArray = (zoomLevel, _startLlc, _endLlc)=>{
   const returnArray = [];
-  const startLlc = proj4(wgs84, grs80, [_startLlc.lng, _startLlc.lat])
-  const endLlc = proj4(wgs84, grs80, [_endLlc.lng, _endLlc.lat])
+  const startLlc = proj4(wgs84, ktm, [_startLlc.lng, _startLlc.lat])
+  const endLlc = proj4(wgs84, ktm, [_endLlc.lng, _endLlc.lat])
   // zoomLevel에 따라서 grid를 다르게 생성한다.
   let scale = 10000;
-  // if(zoomLevel>19) scale = 10;
-  // else if(zoomLevel>16) scale = 100;
-  // else 
   if(zoomLevel>12) scale = 1000;
   // grid 배열 생성
   const gridArray = samplePointXY(scale, startLlc[0], endLlc[0], startLlc[1], endLlc[1]);
@@ -179,11 +154,6 @@ const lineArray = (zoomLevel, _startLlc, _endLlc)=>{
           const dataX1Y0 = gridArray[i+1][j];
           const dataX0Y1 = gridArray[i][j+1];
           const dataX1Y1 = gridArray[i+1][j+1];
-          const centerX = (dataX0Y0[0]+dataX1Y1[0])/2;
-          const centerY = (dataX0Y0[1]+dataX1Y1[1])/2;
-          const cbc = LlcToCbc([centerX, centerY]);
-          let cbcLabelText = "";
-          if(cbc) cbcLabelText = getLabelText(scale, cbc);
           returnArray.push({
             latLongArr: [ // 00, 10, 11, 01 순으로 들어감.
             [dataX0Y0[1], dataX0Y0[0]],
@@ -192,7 +162,6 @@ const lineArray = (zoomLevel, _startLlc, _endLlc)=>{
             [dataX0Y1[1], dataX0Y1[0]]
           ],
             id: zoomLevel.toString() + "." + gridArray[i][j] + "y",
-            cbcText: cbcLabelText,
             ref:gridArray[i][j],
           })
         }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {useMap, useMapEvents, Polygon, Tooltip } from 'react-leaflet';
+import {useMap, useMapEvents, Polygon } from 'react-leaflet';
 import CbcConvert from '../../modules/CbcConvert';
 import 'leaflet/dist/leaflet.css';
 
@@ -17,7 +17,7 @@ const RiskPolygonSet = (props) => {
       map.getBounds().getNorthEast()
     );
     setLineArr(()=>[...newLineArray]);
-  }, [props.rainFall, props.floodRisk]);
+  }, [props.rainFall, props.floodRisk, map, mapZoomLevel]);
 
   const mapEvents = useMapEvents({
     zoomend: () => {
@@ -44,13 +44,15 @@ const RiskPolygonSet = (props) => {
   const cbcCmp = (cbc1, cbc2)=>{
     if(cbc1[0]>cbc2[0]) return 1;
     else if(cbc1[0]<cbc2[0]) return -1;
-    else if((cbc1[1]-cbc2[1])>10) return 1;
-    else if((cbc1[1]-cbc2[1])<-10) return -1;
-    else if((cbc1[2]-cbc2[2])>10) return 1;
-    else if((cbc1[2]-cbc2[2])<-10) return -1;
+    else if((cbc1[1]-cbc2[1])>50) return 1;
+    else if((cbc1[1]-cbc2[1])<-50) return -1;
+    else if((cbc1[2]-cbc2[2])>50) return 1;
+    else if((cbc1[2]-cbc2[2])<-50) return -1;
     return 0;
   } 
-  const getSameData = (cbc)=>{
+
+  useEffect(() => {
+    const getSameData = (cbc)=>{
     if(!props.floodRisk) return null;
     let s=0, e=props.floodRisk.length-1;
     let m
@@ -77,33 +79,34 @@ const RiskPolygonSet = (props) => {
     return null;
   }
 
-  const getColor = (grs80Codinate)=>{
-    try{
-      const cbc = CbcConvert.LlcToCbc(grs80Codinate)
-      let color = "grey";
-      for(let i=1; i<cbc.length; i++){
-        cbc[i] = parseInt(cbc[i])
+    const getColor = (grs80Codinate)=>{
+      try{
+        const cbc = CbcConvert.LlcToCbc(grs80Codinate)
+        let color = "grey";
+        for(let i=1; i<cbc.length; i++){
+          cbc[i] = parseInt(cbc[i])
+        }
+        let cmp
+        cmp = getSameData(cbc)
+        if(cmp===null){
+          return "grey";
+        }
+        const data = cmp["data"];
+        const location = data["location"]
+        if(!props.rainFall || !props.rainFall[location]) return color;
+        // mm/30m 강우량을 cm/3h  강우량으로 반환
+        const rainFall = ((props.rainFall[location].rainFall)*6)/10;
+        if(rainFall===0) color="#33A23D";  
+        else if(data["depth10Risk"] && rainFall <= data["depth10Risk"]) color= "#7fff00";
+        else if(data["depth20Risk"] && rainFall >= data["depth10Risk"] && rainFall<data["depth20Risk"]) color= "yellow";
+        else if(data["depth50Risk"] && rainFall >= data["depth20Risk"] && rainFall<data["depth50Risk"]) color= "orange";
+        else if(data["depth50Risk"] && data["depth50Risk"]<=rainFall) color= "red";
+        return color;
+      }catch(err){
+        console.log(err)
       }
-      let cmp
-      cmp = getSameData(cbc)
-      if(cmp===null){
-        return "grey";
-      }
-      const data = cmp["data"];
-      const location = data["location"]
-      if(!props.rainFall || !props.rainFall[location]) return color;
-      const rainFall = props.rainFall[location].rainFall;
-      if(data["depth10Risk"] && rainFall <= data["depth10Risk"]) color= "green";
-      if(data["depth20Risk"] && rainFall >= data["depth10Risk"] && rainFall<data["depth20Risk"]) color= "yellow";
-      if(data["depth50Risk"] && rainFall >= data["depth20Risk"] && rainFall<data["depth50Risk"]) color= "orange";
-      if(data["depth50Risk"] && data["depth50Risk"]<=rainFall) color= "red";
-      return color;
-    }catch(err){
-      console.log(err)
     }
-  }
 
-  useEffect(() => {
     if (lineArr.length !== 0) {
       const result = lineArr.map(({ id, latLongArr, cbcText, ref }) => (
         <Polygon
@@ -118,7 +121,7 @@ const RiskPolygonSet = (props) => {
     } else {
       setPolygonData(null);
     }
-  }, [lineArr]);
+  }, [lineArr, props]);
 
   return(
     <div>{polygonData}</div>

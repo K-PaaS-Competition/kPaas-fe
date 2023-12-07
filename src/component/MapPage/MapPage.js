@@ -13,20 +13,15 @@ const mapStyle = {
 
 const RiskGraph = ()=>{
   const gridData = [0, 10, 20, 50, "~"];
-  const [gridDataJsx, setGridDataJsx] = useState();
-
-  useEffect(()=>{
-    const element = (
-      <div className={style.gridDataJsxContainer}>
-        {gridData.map((data)=>{
-          return(
-            <div key={`grid-${data}`}>{data}</div>
-          )
-        })}
-      </div>
-    );
-    setGridDataJsx(()=>element);
-  }, []);
+  const gridDataJsx = (
+    <div className={style.gridDataJsxContainer}>
+      {gridData.map((data)=>{
+        return(
+          <div key={`grid-${data}`}>{data}</div>
+        )
+      })}
+    </div>
+  );
 
   return(
     <div className={style.riskRraphContainer}>
@@ -69,7 +64,7 @@ const MapPage = ()=>{
           await axios.get(`http://localhost:8000/city/subRegion/city?city=${cityName}`)
           .then((res)=>{
             const data = res.data.data;
-            tmp = ({...tmp, [cityName]:data})
+            tmp[cityName] = data;
           })
           .catch((err)=>console.log(err))
         }
@@ -85,11 +80,11 @@ const MapPage = ()=>{
   // 중심 위치 변경
   useEffect(()=>{
     try{
-      if(!currentRegion || !cityList) return;
+      if(!currentRegion || !cityList || !regionList) return;
       const currentRegionData = currentRegion.split(" ");
       for(let i=0; i<cityList.length; i++){
         const city = cityList[i];
-        if(city['name'] == currentRegionData[0]){
+        if(city['name'] === currentRegionData[0]){
           let tmpCenter = {}
           tmpCenter = ({
             "lat":((city['maxLat']+city['minLat'])/2),
@@ -177,7 +172,7 @@ const MapPage = ()=>{
       tmp = rainFall[lst[1]]['rainFall']
     }
     if(tmp<0) tmp="데이터 없음"
-    else setCurrentRainFall(()=><div className={style.rainFallValue}>{`${tmp*2}mm/h`}</div>);
+    else setCurrentRainFall(()=><div className={style.rainFallValue}>{`${Math.round(tmp*200)/100}mm/h`}</div>);
   },[currentRegion, rainFall])
 
   useEffect(()=>{
@@ -191,7 +186,7 @@ const MapPage = ()=>{
           className={style.similarRegion}
           onClick={()=>{
             searchBoxRef.current.value=data;
-            setCurrentRegion(()=>data);
+            setCurrentRegion(()=>data.trim());
           }}
         >
           {data}
@@ -221,7 +216,7 @@ const MapPage = ()=>{
     if(e.key==='Enter'){
       const searchValue = similarRegionJsx[0].key;
       searchBoxRef.current.value = searchValue;
-      setCurrentRegion(()=>searchValue);
+      setCurrentRegion(()=>searchValue.trim());
     }
   }
 
@@ -239,8 +234,19 @@ const MapPage = ()=>{
             </div>
           </div>
           <div className={style.inputWrapper}>
-            <input className={style.searchBox} onChange={searchBoxChangeHandler} ref={searchBoxRef} id='searchBox' onFocus={showSimilarRegionHandler} onKeyPress={searchEnterHandler}/>
-            {showSimilarRegion && similarRegionJsx.length>0 && <div className={style.similarRegionContainer}  id='searchBox'>{similarRegionJsx}</div>}
+            <input 
+              className={style.searchBox} 
+              onChange={searchBoxChangeHandler} 
+              ref={searchBoxRef} 
+              id='searchBox' 
+              onFocus={showSimilarRegionHandler} 
+              onKeyDown={searchEnterHandler} 
+              maxLength={20}
+            />
+            {
+              showSimilarRegion && similarRegionJsx.length>0 && 
+              <div className={style.similarRegionContainer}  id='searchBox'>{similarRegionJsx}</div>
+            }
           </div>
         </div>
         <div className={style.locationInfoContainer}>
@@ -248,7 +254,7 @@ const MapPage = ()=>{
             {locationJsx}
           </div>
           <div className={style.rainFall}>
-            <img src={images.rainIcon} alt='rainIcon' className={style.rainIcon}/>
+            <img src={images.rainIconWhite} alt='rainIcon' className={style.rainIcon}/>
             {currentRainFall}
           </div>
         </div>

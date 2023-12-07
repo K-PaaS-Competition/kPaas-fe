@@ -15,6 +15,7 @@
   display: flex;
   align-items: center;
   column-gap: 2rem;
+  row-gap: 2rem;
 
   width: 100vw;
   height: 2.2rem;
@@ -24,6 +25,8 @@
   top: 1.5rem;
 
   z-index: 1000;
+
+  flex-wrap: wrap;
 }
 
 .inputContainer{
@@ -31,6 +34,7 @@
   display: flex;
 
   width: 25.5vw;
+  min-width: 25rem;
   height: 100%;
   background-color: #fff;
 
@@ -44,7 +48,8 @@
   column-gap: 1rem;
   padding-left: 0.7rem;
 
-  width: 9.5vw;
+  width: 30%;
+  min-width: 9rem;
   height: 100%;
   background-color: #22c55e;
 
@@ -83,8 +88,8 @@
 
   position: relative;
 
-  width: 15vw;
-  /* min-width: 6rem; */
+  width: 70%;
+  min-width: 6rem;
 
   height: 100%;
 
@@ -110,6 +115,7 @@
   left: 0;
 
   width: 100%;
+  min-width: 6rem;
   max-height: 20rem;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -118,6 +124,8 @@
   padding: 0.5rem 0 0.5rem 0;
   border-radius: 0 0 0.5rem 0.5rem;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+
+  z-index: 10;
 }
 
 .similarRegion{
@@ -138,6 +146,7 @@
 .locationInfoContainer{
   display: flex;
   position: relative;
+  width: 20rem;
   height: 100%;
 
   border-radius: 0.5rem;
@@ -151,7 +160,7 @@
 
   column-gap: 1rem;
   
-  width: 12vw;
+  width: 60%;
   height: 100%;
   background-color: #fff;
 
@@ -179,7 +188,7 @@
   justify-content: center;
   column-gap: 0.6rem;
 
-  width: 8rem;
+  width: 40%;
   height: 100%;
   background-color: #22c55e;
 
@@ -250,12 +259,7 @@
   border-radius: 0.1875rem;
   margin-bottom: 1rem;
 
-  background: linear-gradient(270deg,
-      #FF2020 1.04%,
-      #FF6D00 26.3%,
-      #FFD700 53.19%,
-      #FAFF00 76.81%,
-      #8FFF00 100%);
+  background: linear-gradient(270deg, #FF2020 1.04%, #FF6D00 21.25%, #FFD700 40.83%, #FAFF00 61.96%, #8FFF00 81.55%, #33A23D 100%);
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
 }
 

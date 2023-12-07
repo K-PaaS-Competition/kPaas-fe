@@ -16,5 +16,6 @@ const images = {
   mapIcon:require("./mapIcon.png"),
   subwayWhiteIcon:require("./subwayWhiteIcon.png"),
   searchIcon:require("./searchIcon.png"),
+  rainIconWhite:require("./rainIconWhite.png"),
 };
 export default images;

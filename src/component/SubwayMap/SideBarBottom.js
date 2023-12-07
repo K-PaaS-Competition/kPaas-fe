@@ -85,8 +85,9 @@ const SideBarBottom = (props)=>{
       <div className={style.stationInfo}>
         <div className={style.infoTitle}>강수량</div>
         <div className={style.infoContent} style={{justifyContent:"center", columnGap:"1.3rem"}}>
-          <img src={images.rainIcon} alt='rainIcon' className={style.rainIcon}/>
-          <div className={style.rainFall}>{props.rainFall}mm/h</div>
+          {props.rainFall>=0 && <img src={images.rainIcon} alt='rainIcon' className={style.rainIcon}/>}
+          {props.rainFall>=0 && <div className={style.rainFall}>{Math.round(props.rainFall*100)/100}mm/h</div>}
+          {props.rainFall<0 && <div className={style.rainFall} style={{fontSize:"1.2rem"}}>해당 지역 정보가 없습니다</div>}
         </div>
       </div>
       <div className={style.stationInfo}>

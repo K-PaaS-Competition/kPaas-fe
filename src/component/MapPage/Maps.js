@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import { Icon, point } from 'leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { Icon } from 'leaflet';
 import images from '../../assets/images/images';
-import CbcConvert from '../../modules/CbcConvert';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import RiskPolygonSet from './RiskPolygonSet';
@@ -16,23 +15,27 @@ const customIcon = new Icon({
 
 const UpdateBounds = ({bounds, position}) => {
   const map = useMap();
-  useEffect(() => {
-    map.whenReady(()=>{
-      map.setView(position, 15);
-    });
-  }, [map, position]);
 
   useEffect(() => {
-    map.setMaxBounds(bounds);
-    if(!position || !position['lat']) return;
-    map.setView(position)
-  }, [bounds, map, position]);
+    try{
+      map.whenReady(()=>{
+        map.setView(position, 15);
+        map.setMaxBounds(bounds)
+      });
+      if(!position) return;
+      if(!position['lat']) return;
+      map.setView(position, 15)
+      map.setMaxBounds(bounds);
+    }catch(err){
+      console.log(err)
+    }
+  }, [map, bounds, position]);
 
   return null;
 };
 
 const Maps = (props) => {
-  const [zoomLevel, setZoomLevel] = useState(13);
+  const zoomLevel = 13;
   const [floodRisk, setFloodRisk] = useState(null);
   const [cityInfo, setCityInfo] = useState({
     "name": "seoul",

@@ -16,37 +16,29 @@ const SearchPage = ({setPage})=>{
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleClickSimilarInput = (e)=>{
-    if(!similarInput || similarInput.length===0) return;
-    if(!e.target.innerText) return;
-    inputRef.current.value = e.target.innerText;
-    if(mapType === "map"){
-      navigate("/map", {state:{"name":e.target.innerText}});
-    }else if(mapType === "subway"){
-      const stationName = ((e.target.innerText).split(" "))[0];
-      navigate("/subway", {state:{"name":stationName}})
-    }
-  }
-
   useEffect(()=>{
-    async function getRegionList(){
+    async function getRegionList(city){
+      let tmp = {}
+      for(let i=0; i<city.length; i++){
+        const cityName = city[i]['name'];
+        await axios.get(`http://localhost:8000/city/subRegion/city?city=${cityName}`)
+        .then((res)=>{
+          const data = res.data.data;
+          console.log(data)
+          tmp[cityName] = data;
+        })
+        .catch((err)=>console.log(err))
+      }
+      await setRegionList(()=>tmp)
+    }
+    async function getCityList(){
       await axios.get("http://localhost:8000/city/getAll")
       .then(async (res)=>{
         await setCityList(()=>res.data.data)
         return res.data.data
       })
       .then(async (city)=>{
-        let tmp = {}
-        for(let i=0; i<city.length; i++){
-          const cityName = city[i]['name'];
-          await axios.get(`http://localhost:8000/city/subRegion/city?city=${cityName}`)
-          .then((res)=>{
-            const data = res.data.data;
-            tmp = ({...tmp, [cityName]:data})
-          })
-          .catch((err)=>console.log(err))
-        }
-        await setRegionList(()=>tmp)
+        getRegionList(city);
       })
       .catch(err=>{
         console.log(err)
@@ -61,11 +53,23 @@ const SearchPage = ({setPage})=>{
         console.log(err)
       });
     };
-    getRegionList();
+    getCityList();
     getSubwayList();
   }, []);
 
   useEffect(()=>{
+    const handleClickSimilarInput = (e)=>{
+      if(!similarInput || similarInput.length===0) return;
+      if(!e.target.innerText) return;
+      inputRef.current.value = e.target.innerText;
+      if(mapType === "map"){
+        navigate("/map", {state:{"name":e.target.innerText}});
+      }else if(mapType === "subway"){
+        const stationName = ((e.target.innerText).split(" "))[0];
+        navigate("/subway", {state:{"name":stationName}})
+      }
+    }
+
     if(!similarInput) return;
     const tmpSimilarInputJsx = [];
     for(let i=0; i<similarInput.length; i++){
@@ -81,13 +85,11 @@ const SearchPage = ({setPage})=>{
       )
     }
     setSimilarInputJsx(()=>tmpSimilarInputJsx);
-  }, [similarInput]);
+  }, [similarInput, mapType, navigate]);
 
   const handleScroll = (e) => {
-    console.log(e.target.id);
     if(e.target.id === "similarInput") return;
     if(e.deltaY < 0){
-      console.log("scroll down");
       setPage((prev)=>{
         if(prev===1){
           return prev-1;
@@ -104,7 +106,6 @@ const SearchPage = ({setPage})=>{
 
   const mapTypeHandler = (e)=>{
     const targetId = e.currentTarget.id;
-    console.log(targetId);
     setMapType(()=>targetId);
     setSimilarInput(()=>null);
     setSimilarInputJsx(()=>null);
@@ -127,19 +128,30 @@ const SearchPage = ({setPage})=>{
     const inputData = similarInput[0];
     if(!inputData) return;
 
-    console.log(mapType)
     if(mapType === "map"){
       inputRef.current.value = inputData;
       navigate("/map", {state:{"name":inputData.trim()}});
     }else if(mapType === "subway"){
-      console.log("subway");
       inputRef.current.value = inputData['name'];
       const subwayName = inputData['name'];
       navigate("/subway", {state:{
-        "name":subwayName
+        "name":subwayName.trim()
       }});
     }
   };
+
+  const enterSearchHandler = (e)=>{
+    if(e.key === "Enter"){
+      if(!similarInput || similarInput.length===0) return;
+      if(mapType === "map"){
+        inputRef.current.value = similarInput[0]
+        navigate("/map", {state:{"name":similarInput[0].trim()}})
+      }else if(mapType === "subway"){
+        inputRef.current.value = similarInput[0]['name']
+        navigate("/subway", {state:{"name":similarInput[0]['name'].trim()}})
+      }
+    }
+  }
 
   return(
     <div className={style.background} onWheel={handleScroll} onClick={handleClick}>
@@ -152,7 +164,15 @@ const SearchPage = ({setPage})=>{
           <span className={mapType==='subway'?style.selectedMapOption:style.mapOption} id='subway' onClick={mapTypeHandler}>subway</span>
         </div>
         <div className={style.searchBoxContainer}>
-          <input className={style.searchBox} ref={inputRef} onChange={searchBoxChangeHandler} id='similarInput' onFocus={()=>setShowSimilarInput(true)}/>
+          <input 
+            className={style.searchBox} 
+            ref={inputRef} 
+            onChange={searchBoxChangeHandler} 
+            id='similarInput' 
+            onFocus={()=>setShowSimilarInput(true)} 
+            onKeyDown={enterSearchHandler}
+            maxLength={25}
+          />
           {showSimilarInput && similarInput && similarInput.length>0 && <div className={style.simiarInputContainer} id='similarInput'>{similarInputJsx}</div> }
           <div className={style.submitButtonContainer} onClick={handleSearchButtonClick}>
             <img
