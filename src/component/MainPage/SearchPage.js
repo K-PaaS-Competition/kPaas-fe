@@ -21,7 +21,7 @@ const SearchPage = ({setPage})=>{
       let tmp = {}
       for(let i=0; i<city.length; i++){
         const cityName = city[i]['name'];
-        await axios.get(`http://49.50.164.200:8000/city/subRegion/city?city=${cityName}`)
+        await axios.get(`https://floodingpoint.p-e.kr/city/subRegion/city?city=${cityName}`)
         .then((res)=>{
           const data = res.data.data;
           tmp[cityName] = data;
