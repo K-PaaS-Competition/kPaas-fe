@@ -31,7 +31,7 @@ const SearchPage = ({setPage})=>{
       await setRegionList(()=>tmp)
     }
     async function getCityList(){
-      await axios.get("http://49.50.164.200:8000/city/getAll")
+      await axios.get("https://floodingpoint.p-e.kr/city/getAll")
       .then(async (res)=>{
         await setCityList(()=>res.data.data)
         return res.data.data
@@ -46,7 +46,7 @@ const SearchPage = ({setPage})=>{
     async function getSubwayList(){
       //'https://cors-anywhere.herokuapp.com/
       // await axios.get("http://49.50.164.200:8000/subway/getAll")
-      await axios.get("'https://cors.bridged.cc/http://49.50.164.200:8000/subway/getAll")
+      await axios.get("https://floodingpoint.p-e.kr/subway/getAll")
       .then(async (res)=>{
         await setSubwayList(()=>res.data)
       })
