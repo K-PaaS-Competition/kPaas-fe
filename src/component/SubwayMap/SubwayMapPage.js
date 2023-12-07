@@ -21,7 +21,7 @@ const SubwayMapPage = ()=>{
   // 기본적인 데이터 로드
   useEffect(()=>{
     async function getSubwayList(){
-      await axios.get("http://49.50.164.200:8000/subway/getAll")
+      await axios.get("https://floodingpoint.p-e.kr/subway/getAll")
       .then(async (res)=>{
         await setSubwayList(()=>res.data)
       })
@@ -34,7 +34,7 @@ const SubwayMapPage = ()=>{
 
   useEffect(()=>{
     async function getCurrentSubwayInfo(){
-      await axios.get(`http://49.50.164.200:8000/subway/get?station=${stationName}`)
+      await axios.get(`https://floodingpoint.p-e.kr/subway/get?station=${stationName}`)
       .then(async (res)=>{
         const subwayData = res.data[0]
         const subwayCbc = CbcConvert.LlcToCbc([subwayData.lng, subwayData.lat])
@@ -46,7 +46,7 @@ const SubwayMapPage = ()=>{
           const roundNumber = Math.round(cbc[i]/100)
           cbc[i] = roundNumber
         }
-        await axios.get(`http://49.50.164.200:8000/floodRisk/getByCbc?gidChar=${cbc[0]}&gidCode1=${cbc[1]}&gidCode2=${cbc[2]}`)
+        await axios.get(`https://floodingpoint.p-e.kr/floodRisk/getByCbc?gidChar=${cbc[0]}&gidCode1=${cbc[1]}&gidCode2=${cbc[2]}`)
         .then(async (res)=>{
           await(setFloodRisk(()=>res.data[0]))
         }).catch((err)=>{
@@ -58,7 +58,7 @@ const SubwayMapPage = ()=>{
       });
     }
     async function getRainFallData(){
-      await axios.get(`http://49.50.164.200:8000/rain/get?city=seoul&Cumulative_time=30`)
+      await axios.get(`https://floodingpoint.p-e.kr/rain/get?city=seoul&Cumulative_time=30`)
       .then(res=>{
         setRainFall(()=>res.data)
       })

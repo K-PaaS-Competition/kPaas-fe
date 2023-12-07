@@ -48,7 +48,7 @@ const Maps = (props) => {
   useEffect(()=> {
     try{
       async function getFloodRiskData() {
-        await axios.get(`http://49.50.164.200:8000/floodRisk/get?city=${props.cityName}`)
+        await axios.get(`https://floodingpoint.p-e.kr/floodRisk/get?city=${props.cityName}`)
         .then(async (res)=>{
           let data = res.data.data;
           for(let i=0; i<data.length; i++){
@@ -72,7 +72,7 @@ const Maps = (props) => {
         });
       }
       async function getCityData(){
-        await axios.get(`http://49.50.164.200:8000/city/get?city=${props.cityName}`)
+        await axios.get(`https://floodingpoint.p-e.kr/city/get?city=${props.cityName}`)
         .then(async(res)=>{
           const cityData = res.data.data
           await setCityInfo(()=>cityData)
