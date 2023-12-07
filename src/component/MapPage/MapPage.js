@@ -52,7 +52,7 @@ const MapPage = ()=>{
   useEffect(()=>{
     // 도시 정보 받아옴
     async function getRegionList(){
-      await axios.get("http://localhost:8000/city/getAll")
+      await axios.get("http://49.50.164.200:8000/city/getAll")
       .then(async (res)=>{
         await setCityList(()=>res.data.data)
         return res.data.data
@@ -61,7 +61,7 @@ const MapPage = ()=>{
         let tmp = {}
         for(let i=0; i<city.length; i++){
           const cityName = city[i]['name'];
-          await axios.get(`http://localhost:8000/city/subRegion/city?city=${cityName}`)
+          await axios.get(`http://49.50.164.200:8000/city/subRegion/city?city=${cityName}`)
           .then((res)=>{
             const data = res.data.data;
             tmp[cityName] = data;
@@ -134,7 +134,7 @@ const MapPage = ()=>{
     try{
       const lst = currentRegion.split(" ");
       async function getRainFall(){
-        await axios.get(`http://localhost:8000/rain/get?city=${lst[0]}&Cumulative_time=30`)
+        await axios.get(`http://49.50.164.200:8000/rain/get?city=${lst[0]}&Cumulative_time=30`)
         .then(async (res)=>{
           let rainFallData = res.data;
           const keys = Object.keys(rainFallData);

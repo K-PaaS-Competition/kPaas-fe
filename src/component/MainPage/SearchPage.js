@@ -21,10 +21,9 @@ const SearchPage = ({setPage})=>{
       let tmp = {}
       for(let i=0; i<city.length; i++){
         const cityName = city[i]['name'];
-        await axios.get(`http://localhost:8000/city/subRegion/city?city=${cityName}`)
+        await axios.get(`http://49.50.164.200:8000/city/subRegion/city?city=${cityName}`)
         .then((res)=>{
           const data = res.data.data;
-          console.log(data)
           tmp[cityName] = data;
         })
         .catch((err)=>console.log(err))
@@ -32,7 +31,7 @@ const SearchPage = ({setPage})=>{
       await setRegionList(()=>tmp)
     }
     async function getCityList(){
-      await axios.get("http://localhost:8000/city/getAll")
+      await axios.get("http://49.50.164.200:8000/city/getAll")
       .then(async (res)=>{
         await setCityList(()=>res.data.data)
         return res.data.data
@@ -45,7 +44,7 @@ const SearchPage = ({setPage})=>{
       })
     };
     async function getSubwayList(){
-      await axios.get("http://localhost:8000/subway/getAll")
+      await axios.get("http://49.50.164.200:8000/subway/getAll")
       .then(async (res)=>{
         await setSubwayList(()=>res.data)
       })
