@@ -22,6 +22,7 @@ const UpdateBounds = ({bounds, position}) => {
         map.setView(position, 15);
         map.setMaxBounds(bounds)
       });
+      
       if(!position) return;
       if(!position['lat']) return;
       map.setView(position, 15)
