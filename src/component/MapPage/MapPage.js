@@ -148,7 +148,7 @@ const MapPage = ()=>{
         })
       }
       getRainFall();
-      const rainFallInterval = setInterval(getRainFall, 10000);
+      const rainFallInterval = setInterval(getRainFall, 60000);
       return (()=>clearInterval(rainFallInterval));
     }catch(err){
       console.log(err)
