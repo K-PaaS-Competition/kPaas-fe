@@ -93,12 +93,12 @@
 
 .subwayPageNav{
   height: 1.6rem;
-  width: fit-content;
+  width: 1.2rem;
 }
 
 .mapPageNav{
   height: 1.6rem;
-  width: fit-content;
+  width: 1.2rem;
 }
 .imageContainer{
   display: flex;
